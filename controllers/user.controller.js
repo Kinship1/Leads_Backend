@@ -43,28 +43,29 @@ export const login = (req, res) => {
         password: req.body.password,
     }
     db.query(`SELECT * FROM users WHERE username = '${user.username}'` , (err, rows) => {
-        if(err){
-            res.status(404).send("INVALID CREDENTIALS!!");
+        if(err || rows.length===0){
+            res.status(401).send({message:"INVALID CREDENTIALS!!"});
+        } else{
+            user.id = rows[0].id;
+            console.log(user);
+            bcryptjs.compare(user.password, rows[0].password, (err, result) => {
+                if (result){
+                    const token = jwt.sign(user, 'secret', (err, token) => {
+                        if(!err){
+                            res.status(200).send({
+                                message: "Login Successful",
+                                username: user.username,
+                                token: token
+                            })
+                        } else {
+                            res.status(404).send(err);
+                        }
+                    })
+                } else {
+                    res.status(404).send("INVALID CREDENTIALS!!");
+                }
+            });
         }
-        user.id = rows[0].id;
-        console.log(user);
-        bcryptjs.compare(user.password, rows[0].password, (err, result) => {
-            if (result){
-                const token = jwt.sign(user, 'secret', (err, token) => {
-                    if(!err){
-                        res.status(200).send({
-                            message: "Login Successful",
-                            username: user.username,
-                            token: token
-                        })
-                    } else {
-                        res.status(404).send(err);
-                    }
-                })
-            } else {
-                res.status(404).send("INVALID CREDENTIALS!!");
-            }
-        });
     });  
 };
 

@@ -47,19 +47,50 @@ export const add = (req, res) => {
 // };
 
 export const show = (req, res) => {
+    const user_id = res.locals.user_id;
+    if (user_id===4){
+        db.query(`SELECT id, name, ph_no, address, reward, status, date FROM leads`, (err, result) => {
+            if(err){
+                console.log(err)
+                res.status(406).send(err.sqlMessage);
+            } else {
+                console.log("result", result)
+                res.status(200).send(result)
+            }
+        });
 
-    db.query(`SELECT id, name, ph_no, address, reward, status, date FROM leads`, (err, result) => {
+    } else {
+    db.query(`SELECT id, name, ph_no, address, reward, status, date FROM leads WHERE user_id= '${user_id}'`, (err, result) => {
         if(err){
             console.log(err)
             res.status(406).send(err.sqlMessage);
         } else {
-            console.log("Data Sent")
+            console.log("result", result)
             res.status(200).send(result)
+        }
+    });
+}
+};
+
+
+export const edit = (req, res) => {
+
+    const lead = {
+        id: req.body.id,
+        name: req.body.name,
+        ph_no: req.body.ph_no,
+        address: req.body.address,
+    }
+    console.log(lead);
+    db.query(`UPDATE leads SET name='${lead.name}', ph_no='${lead.ph_no}', address='${lead.address}' WHERE id = '${lead.id}'`, (err, result) => {
+        if(err){
+            res.status(406).send(err.sqlMessage);
+        } else {
+            res.status(200).send({
+                message: "Lead Edited",
+                lead: lead,
+            })
         }
     });
 };
 
-// module.exports = {
-//     add: add,
-//     show: show,
-// }

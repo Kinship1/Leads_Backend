@@ -46,7 +46,7 @@ connection.query(`CREATE TABLE ${process.env.DATABASE}.leads (\
     reward INT,\
     status VARCHAR(255),\
     ph_no VARCHAR(10),\
-    date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,\
+    date DATE NOT NULL DEFAULT CURRENT_DATE(),\
     PRIMARY KEY (id),\
     FOREIGN KEY (user_id) REFERENCES users(id)\
 )`);
